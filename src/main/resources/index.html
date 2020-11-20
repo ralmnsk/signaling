@@ -1,0 +1,47 @@
+<html>
+<head>
+    <meta charset=”utf-8”>
+    <script src="client.js"></script>
+    <style>
+        #regDiv{
+            display: none;
+        }
+        #logDiv{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+        <button id="toRegBtn" onclick="regDiv()">Registration</button>
+        <button id="toLogBtn" onclick="logDiv()">Log in</button>
+    <div id="regDiv">   <!--REGISTRATION-->
+        <input id="loginReg" type="text" placeholder="login"><br>
+        <input id="passwordReg" type="password" placeholder="password"><br>
+        <input id="address" type="text" placeholder="address"><br>
+        <input id="email" type="email" placeholder="email"><br>
+        <button id="regBtn" onclick="sendRegistrationData()">Register</button>
+    </div>
+    <div id="logDiv">  <!--LOGIN-->
+        <input id="login" type="text" placeholder="login">
+        <input id="password" type="password" placeholder="password">
+        <button id="loginBtn">Login</button>
+    </div>
+    <ul class="userList"></ul>
+    <br>
+    <div id="line">
+        <h3 id="msg">...</h3>
+    </div>
+    <br>
+    <div id="buttons">
+        <button id="connectServerBtn" onclick="createConnection()">Connect to server</button>
+        <button id="btn" onclick="call()">start call</button>
+<!--        <button id="test" onclick="test()">test</button>-->
+        <button id="btnStop" onclick="stopCall()">stop call</button>
+    </div>
+    <br>
+    <div id="videos">
+        <video id="localVideo" autoplay></video>
+        <video id="remoteVideo" autoplay></video>
+    </div>
+</body>
+</html>
