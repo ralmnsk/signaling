@@ -12,35 +12,46 @@
     </style>
 </head>
 <body>
-        <button id="toRegBtn" onclick="regDiv()">Registration</button>
-        <button id="toLogBtn" onclick="logDiv()">Log in</button>
-    <div id="regDiv">   <!--REGISTRATION-->
-        <input id="loginReg" type="text" placeholder="login"><br>
+        <!-- <button id="toRegBtn" onclick="regDiv()">Registration</button>
+        <button id="toLogBtn" onclick="logDiv()">Log in</button> -->
+    <!-- <div id="regDiv">    -->
+        <!--REGISTRATION-->
+        <!-- <input id="loginReg" type="text" placeholder="login"><br>
         <input id="passwordReg" type="password" placeholder="password"><br>
         <input id="address" type="text" placeholder="address"><br>
         <input id="email" type="email" placeholder="email"><br>
-        <button id="regBtn" onclick="sendRegistrationData()">Register</button>
-    </div>
-    <div id="logDiv">  <!--LOGIN-->
-        <input id="login" type="text" placeholder="login">
+        <button id="regBtn" onclick="sendRegistrationData()">Register</button> -->
+    <!-- </div>
+    <div id="logDiv">   -->
+        <!--LOGIN-->
+        <!-- <input id="login" type="text" placeholder="login">
         <input id="password" type="password" placeholder="password">
         <button id="loginBtn">Login</button>
-    </div>
+    </div> -->
     <ul class="userList"></ul>
     <br>
+    <div>Message from server:</div>
     <div id="line">
         <h3 id="msg">...</h3>
     </div>
     <br>
+    You have to send uuid to a person you wand to speak to. He inserts it into 'Room uuid' and presses 'set UUID'.
+    <br> Then users press 'Connect' and 'start call' to make a call.
+    <br><br>
     <div id="buttons">
-        <button id="connectServerBtn" onclick="createConnection()">Connect to server</button>
+        <label>Room uuid</label>
+        <input class="uuid" type="text" placeholder="UUID identifier">
+        <button id="setUUID" onclick="setNewUUID()">set UUID</button>
+        <button id="generateUUID" onclick="generateUUID()">generate UUID</button><br/><br/>
+        <button id="connectServerBtn" onclick="createConnection()">Connect</button>
+        <button id="disconnectServerBtn" onclick="closeConnection('close')">Disconnect</button><br/><br/>
         <button id="btn" onclick="call()">start call</button>
 <!--        <button id="test" onclick="test()">test</button>-->
-        <button id="btnStop" onclick="stopCall()">stop call</button>
+        <button id="btnStop" onclick="stopCall()">stop call</button><br/>
     </div>
     <br>
     <div id="videos">
-        <video id="localVideo" autoplay></video>
+        <video id="localVideo" autoplay muted></video>
         <video id="remoteVideo" autoplay></video>
     </div>
 </body>
