@@ -10,8 +10,26 @@
             display: none;
         }
     </style>
+    <link rel="stylesheet" type="text/css" href="./set.css">
 </head>
 <body>
+    <div id="buttons" class="btns">
+        <div class="roomBtns">
+            <label>Room UUID</label>
+            <input class="uuid" type="text" placeholder="UUID identifier">
+            <button id="setUUID" onclick="setNewUUID()">Set</button>
+            <button id="generateUUID" onclick="generateUUID()">Generate</button>
+        </div>
+        <div class="connectionBtns">
+            <button id="connectServerBtn" onclick="createConnection()"><img class="svg" src="./img/link.svg">connect</button>
+            <button id="disconnectServerBtn" onclick="closeConnection('close')"><img class="svg" src="./img/disconnected-chains.svg">close</button>
+        </div>
+        <div class="callBtns">
+            <button id="btn" class="call" onclick="call()"><img class="svg" src="./img/phone-call.svg"></button>
+<!--        <button id="test" onclick="test()">test</button>-->
+            <button id="btnStop" class="hangup" onclick="stopCall()"><img class="svg" src="./img/phone-hang-up.svg"></button>
+        </div>
+    </div>
         <!-- <button id="toRegBtn" onclick="regDiv()">Registration</button>
         <button id="toLogBtn" onclick="logDiv()">Log in</button> -->
     <!-- <div id="regDiv">    -->
@@ -29,27 +47,41 @@
         <button id="loginBtn">Login</button>
     </div> -->
     <ul class="userList"></ul>
-    <br>
-    <div>Message from server:</div>
-    <div id="line">
-        <h3 id="msg">...</h3>
+    <div class = "serverMessages">
+        Message from server:
+        <div id="line">
+            <h3 id="msg">...</h3>
+        </div>
     </div>
     <br>
-    You have to send uuid to a person you wand to speak to. He inserts it into 'Room uuid' and presses 'set UUID'.
-    <br> Then users press 'Connect' and 'start call' to make a call.
-    <br><br>
-    <div id="buttons">
-        <label>Room uuid</label>
-        <input class="uuid" type="text" placeholder="UUID identifier">
-        <button id="setUUID" onclick="setNewUUID()">set UUID</button>
-        <button id="generateUUID" onclick="generateUUID()">generate UUID</button><br/><br/>
-        <button id="connectServerBtn" onclick="createConnection()">Connect</button>
-        <button id="disconnectServerBtn" onclick="closeConnection('close')">Disconnect</button><br/><br/>
-        <button id="btn" onclick="call()">start call</button>
-<!--        <button id="test" onclick="test()">test</button>-->
-        <button id="btnStop" onclick="stopCall()">stop call</button><br/>
+    <div class="chatBody serverMessages">
+        <div class="chatWindow serverMessages">
+            
+        </div>
+        <br>
+        <div class="chatFooter">
+            <div id="chatMessage" class="chatInput serverMessages" contenteditable placeholder="Enter some text">
+            </div>
+            <div class="emptySpace">
+            </div>
+            <button class="sendBtn serverMessages" onclick="sendChatMessage()">send</button>
+        </div>
+        
     </div>
     <br>
+    <div class="helper">
+        <img class="svg" src="./img/expand-button.svg" onclick="hideElementByClass('helpInfo')"> 
+        HELP
+    </div>
+    
+    <div class="helpInfo">
+    </br>
+        You have to send uuid to a person you wand to speak to. He inserts it into 'Room uuid' and presses 'set UUID'.
+        <br> Then users press 'Connect' and 'start call' to make a call.
+        <br><br>
+    </div>
+    </br>
+ 
     <div id="videos">
         <video id="localVideo" autoplay muted></video>
         <video id="remoteVideo" autoplay></video>

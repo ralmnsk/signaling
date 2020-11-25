@@ -7,6 +7,8 @@ var countCalls = 0;
 var msgPoints = "...";
 var msg="You have a call";
 var uuid;
+var sendChannel;
+var receiveChannel;
 
 // information message on the page
 function createMsg(msg) {
@@ -25,7 +27,8 @@ function changeMsg(msg){
 
 function createConnection(){
     if (uuid){
-        conn = new WebSocket('wss://app-webrtc2020.herokuapp.com/socket');
+        // conn = new WebSocket('wss://app-webrtc2020.herokuapp.com/socket');
+        conn = new WebSocket('ws://localhost:8080/socket');
     } else {
         let msg = "uuid is null, cannot connect to the server";
         changeMsg(msg);
@@ -34,10 +37,12 @@ function createConnection(){
 
     conn.onopen = function() {
         initialize();
-        changeMsg("connected to the signaling server");
+        changeMsg("conn.onopen the signaling server");
     };
 
+
     conn.onclose = function () {
+        console.log("conn.onclose status:", closeStatus);
         if(closeStatus === "close") {
             changeMsg("Connection closed.");
             return;
@@ -80,22 +85,111 @@ function createConnection(){
 var closeStatus = "";
 function closeConnection(status){
     closeStatus = status;
-    conn.close();
+    if(conn){
+        conn.close();
+    }
+    conn = null;
     changeMsg("Disconnected from the signaling server");
 }
 
 function reconnect(){
-    console.log("try to reconnect")
-    if(!conn){
-        createConnection();
-    }
+    createConnection();
     // stopCall();
     createOffer("reconnect");
+    console.log("try to reconnect, websocket connection:", conn.readyState);
 }
 //-----------------general functions---------------------------------------------
 
 function send(message) {
-    conn.send(JSON.stringify(message));
+    if(conn.readyState === 1){
+        conn.send(JSON.stringify(message));
+    }else{
+        console.log("cannot send to the server");
+    }
+}
+
+function sendChatMessage(){
+    let chatMessageElement = document.getElementById("chatMessage");
+    console.log("sendChatMessage: ", chatMessageElement.innerHTML);
+    sendChannel.send(chatMessageElement.innerHTML);
+    chatMessageElement.innerHTML = "";
+}
+
+window.onload = function () {
+    setUUID();
+    hideElementByClass('helpInfo');
+    hideElementByClass('helpInfo');
+    initBtns();
+}
+
+//-----------------buttons blocking-------------------------------------------
+var setBtn;
+var generateBtn;
+var connectBtn;
+var disconnectBtn;
+var callBtn;
+var hangupBtn;
+let buttons = new Set();
+
+function initBtns(){
+    setBtn = document.getElementById('setUUID');
+    generateBtn = document.getElementById('generateUUID');
+    connectBtn = document.getElementById('connectServerBtn');
+    disconnectBtn = document.getElementById('disconnectServerBtn');
+    disconnectBtn.disabled = true;
+    callBtn = document.getElementById('btn');
+    callBtn.disabled = true;
+    hangupBtn = document.getElementById('btnStop');
+    hangupBtn.disabled = true;
+    buttons.add(setBtn);
+    buttons.add(generateBtn);
+    buttons.add(connectBtn);
+    buttons.add(disconnectBtn);
+    buttons.add(callBtn);
+    buttons.add(hangupBtn);
+    console.log("initBtns: ", buttons);
+}
+
+window.addEventListener("click", function (e){
+    let path = e.path;
+    if (!path) {
+        return;
+    }
+    let id = path[0].id;
+    if(!id){
+        return;
+    }
+    console.log("window event element id: ", id);
+    blockBtnsByNameOfClicked(id);
+});
+
+function blockBtnsByNameOfClicked(buttonName){
+    switch (buttonName){
+        case "connectServerBtn":
+            setBtn.disabled = true;
+            generateBtn.disabled = true;
+            connectBtn.disabled = true;
+            disconnectBtn.disabled = false;
+            callBtn.disabled = false;
+            hangupBtn.disabled = true;
+            break;
+        case "disconnectServerBtn":
+            setBtn.disabled = false;
+            generateBtn.disabled = false;
+            connectBtn.disabled = false;
+            disconnectBtn.disabled = true;
+            callBtn.disabled = true;
+            hangupBtn.disabled = true;
+            break;
+        case "btn":
+            callBtn.disabled = true;
+            hangupBtn.disabled = false;
+            break;
+        case "btnStop":
+            callBtn.disabled = false;
+            hangupBtn.disabled = true;
+            break;                
+    }
 }
 
 //-----------------UUID functions---------------------------------------------
@@ -107,10 +201,6 @@ function createUUID(){
         // console.log("create UUID: ", v.toString(16));
         return v.toString(16);
       });
-}
-
-window.onload = function () {
-    setUUID();
 }
 
 function setUUID(){
@@ -132,7 +222,21 @@ function generateUUID(){
     elements[0].value = newUUID;
     changeMsg("New uuid was generated: "+newUUID);
 }
-
+// dataChannel initialization ---------------------------------------------------
+function initDataChannel(){
+    if(!peerConnection){
+        console.log("peerConnection was not created");
+        return;
+    }
+    sendChannel = peerConnection.createDataChannel("sendChannel");
+    console.log("sendChannel was created");
+    sendChannel.onopen = function(){
+        console.log("sendChannel was opened");
+    }
+    sendChannel.onclose = function(){
+        console.log("sendChannel was closed");
+    }
+}
 // peerConnection initialization ------------------------------------------------
 function initialize() {
     let configuration = {
@@ -170,10 +274,28 @@ function initialize() {
         changeMsg('peerConnection.ontrack');
     };
     closeStatus = "";
+
+    initDataChannel();
+    peerConnection.ondatachannel = function(event){
+        receiveChannel = event.channel;
+        receiveChannel.onmessage = function(message){
+            console.log("message ondatachannel: ", message);
+        }
+        receiveChannel.onopen = function(){
+            console.log("receiveChannel was opened");
+        }
+        receiveChannel.onclose = function(){
+            console.log("receiveChannel was closed");
+        }
+    }
 }
 
 
 function createOffer(isReconnect) {
+    if(!peerConnection){
+        console.log("cannot create offer, peerConnection is not created");
+        return;
+    }
     peerConnection.createOffer(function(offer) {
         send({
             event: "offer",
@@ -251,6 +373,10 @@ function call() {
         uuid: uuid,
         isReconnect: isReconnect
     });
+    if(!peerConnection){
+        console.log("peerConnection is not established");
+        return;
+    }
     navigator.mediaDevices.getUserMedia({
         // video: {
         //     width: 480,
@@ -270,8 +396,10 @@ function call() {
 function hangUp() {
     changeMsg(msgPoints);
     document.getElementById("remoteVideo").srcObject = null;
-    peerConnection.onicecandidate = null;
-    peerConnection.ontrack = null;
+    if (peerConnection){
+        peerConnection.onicecandidate = null;
+        peerConnection.ontrack = null;
+    }
     var stream = document.getElementById("localVideo").srcObject;
     if(stream){
         stream.stop = function (){
@@ -283,6 +411,8 @@ function hangUp() {
         peerConnection.close();
         initialize();
     }
+    
+    
 
     var videos = document.getElementById("videos");
     document.getElementById("localVideo").remove();
@@ -344,6 +474,18 @@ function showElement(element) {
     } else {
         x.style.display = "block";
     }
+    console.log("showElement: ",element);
+}
+
+function hideElementByClass(element){
+    var elems = document.getElementsByClassName(element);
+    var x = elems[0];
+    if (x.style.display === "block") {
+        x.style.display = "none";
+    } else {
+        x.style.display = "block";
+    }
+    console.log("showElement: ",element);
 }
 
 
