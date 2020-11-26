@@ -7,7 +7,7 @@ var countCalls = 0;
 var msgPoints = "...";
 var msg="You have a call";
 var uuid;
-var sendChannel;
+// var sendChannel;
 var receiveChannel;
 
 // information message on the page
@@ -27,8 +27,8 @@ function changeMsg(msg){
 
 function createConnection(){
     if (uuid){
-        // conn = new WebSocket('wss://app-webrtc2020.herokuapp.com/socket');
-        conn = new WebSocket('ws://localhost:8080/socket');
+        conn = new WebSocket('wss://app-webrtc2020.herokuapp.com:8080/socket');
+        // conn = new WebSocket('ws://localhost:8080/socket');
     } else {
         let msg = "uuid is null, cannot connect to the server";
         changeMsg(msg);
@@ -101,19 +101,19 @@ function reconnect(){
 //-----------------general functions---------------------------------------------
 
 function send(message) {
-    if(conn.readyState === 1){
+    if(conn){
         conn.send(JSON.stringify(message));
     }else{
         console.log("cannot send to the server");
     }
 }
 
-function sendChatMessage(){
-    let chatMessageElement = document.getElementById("chatMessage");
-    console.log("sendChatMessage: ", chatMessageElement.innerHTML);
-    sendChannel.send(chatMessageElement.innerHTML);
-    chatMessageElement.innerHTML = "";
-}
+// function sendChatMessage(){
+//     let chatMessageElement = document.getElementById("chatMessage");
+//     console.log("sendChatMessage: ", chatMessageElement.innerHTML);
+//     sendChannel.send(chatMessageElement.innerHTML);
+//     chatMessageElement.innerHTML = "";
+// }
 
 window.onload = function () {
     setUUID();
@@ -223,20 +223,20 @@ function generateUUID(){
     changeMsg("New uuid was generated: "+newUUID);
 }
 // dataChannel initialization ---------------------------------------------------
-function initDataChannel(){
-    if(!peerConnection){
-        console.log("peerConnection was not created");
-        return;
-    }
-    sendChannel = peerConnection.createDataChannel("sendChannel");
-    console.log("sendChannel was created");
-    sendChannel.onopen = function(){
-        console.log("sendChannel was opened");
-    }
-    sendChannel.onclose = function(){
-        console.log("sendChannel was closed");
-    }
-}
+// function initDataChannel(){
+//     if(!peerConnection){
+//         console.log("peerConnection was not created");
+//         return;
+//     }
+//     sendChannel = peerConnection.createDataChannel("sendChannel");
+//     console.log("sendChannel was created");
+//     sendChannel.onopen = function(){
+//         console.log("sendChannel was opened");
+//     }
+//     sendChannel.onclose = function(){
+//         console.log("sendChannel was closed");
+//     }
+// }
 // peerConnection initialization ------------------------------------------------
 function initialize() {
     let configuration = {
@@ -275,7 +275,7 @@ function initialize() {
     };
     closeStatus = "";
 
-    initDataChannel();
+    // initDataChannel();
     peerConnection.ondatachannel = function(event){
         receiveChannel = event.channel;
         receiveChannel.onmessage = function(message){
