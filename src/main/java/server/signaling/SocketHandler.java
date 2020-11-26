@@ -30,6 +30,8 @@ public class SocketHandler extends TextWebSocketHandler {
   @Override
   public void afterConnectionEstablished(WebSocketSession session) throws Exception {
     sessions.add(session);
+    CharSequence id = session.getId();
+    session.sendMessage(new TextMessage("your session id: "+id));
   }
 
   @Override
