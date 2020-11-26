@@ -21,7 +21,7 @@ public class SocketHandler extends TextWebSocketHandler {
         session.sendMessage(message);
         int size = sessions.size();
         CharSequence payload = Integer.toString(size);
-        TextMessage tm = new TextMessage(payload);
+        TextMessage tm = new TextMessage("size:"+payload+" session id: "+session.getId());
         session.sendMessage(tm);
       }
     }

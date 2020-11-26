@@ -6,7 +6,7 @@ var countIceCandidate = 0;
 var countCalls = 0;
 var msgPoints = "...";
 var msg="You have a call";
-var uuid;
+var uuid = 1;
 // var sendChannel;
 var receiveChannel;
 
@@ -27,7 +27,7 @@ function changeMsg(msg){
 
 function createConnection(){
     if (uuid){
-        conn = new WebSocket('wss://app-webrtc2020.herokuapp.com:8080/socket');
+        conn = new WebSocket('wss://app-webrtc2020.herokuapp.com/socket');
         // conn = new WebSocket('ws://localhost:8080/socket');
     } else {
         let msg = "uuid is null, cannot connect to the server";
@@ -103,6 +103,7 @@ function reconnect(){
 function send(message) {
     if(conn){
         conn.send(JSON.stringify(message));
+        console.log("sent message: ", message);
     }else{
         console.log("cannot send to the server");
     }
