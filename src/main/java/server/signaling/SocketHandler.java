@@ -17,13 +17,8 @@ public class SocketHandler extends TextWebSocketHandler {
   protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
     System.out.println(message.getPayload());
     for (WebSocketSession webSocketSession : sessions) {
-      //      if (webSocketSession.isOpen() && !session.getId().equals(webSocketSession.getId())) {
-      if (webSocketSession.isOpen()) {
+            if (webSocketSession.isOpen() && !session.getId().equals(webSocketSession.getId())) {
         session.sendMessage(message);
-        int size = sessions.size();
-        CharSequence payload = Integer.toString(size);
-        TextMessage tm = new TextMessage("size:" + payload + " session id: " + session.getId());
-        session.sendMessage(tm);
       }
     }
   }
@@ -36,8 +31,6 @@ public class SocketHandler extends TextWebSocketHandler {
       }
     }
     sessions.add(session);
-    CharSequence id = session.getId();
-    session.sendMessage(new TextMessage("your session id: " + id));
   }
 
   @Override
