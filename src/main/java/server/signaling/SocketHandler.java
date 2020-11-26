@@ -29,6 +29,11 @@ public class SocketHandler extends TextWebSocketHandler {
 
   @Override
   public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+    for(WebSocketSession s:sessions){
+      if (session.getId().equals(s.getId())){
+        return;
+      }
+    }
     sessions.add(session);
     CharSequence id = session.getId();
     session.sendMessage(new TextMessage("your session id: "+id));
