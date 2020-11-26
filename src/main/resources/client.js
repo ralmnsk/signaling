@@ -27,7 +27,7 @@ function changeMsg(msg){
 
 function createConnection(){
     if (uuid){
-        conn = new WebSocket('wss://app-webrtc2020.herokuapp.com/socket');
+        conn = new WebSocket('ws://app-webrtc2020.herokuapp.com/socket');
         // conn = new WebSocket('ws://localhost:8080/socket');
     } else {
         let msg = "uuid is null, cannot connect to the server";
