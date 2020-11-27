@@ -1,0 +1,160 @@
+$bgcolor: lightblue;
+$altBgColor: lightyellow;
+$aboveBtnColor: lightgreen;
+$textcolor: darkblue;
+$fontsize: 24px;
+$btnRadius: 15px;
+$btnWidth: 120px;
+$btnHeight: 30px;
+$inputWidth: 250px;
+$inputHeigth: 30px;
+$iconsize: 20px;
+$padding: 15px;
+$smallPadding: 5px;
+$chatHeight:400px;
+
+body{
+    background-color:$bgcolor;
+    color: $textcolor;
+    font-size: $fontsize;
+}
+
+button{
+    border-radius: $btnRadius;
+    width: $btnWidth;
+    height: $btnHeight;
+    font-size: $fontsize*0.8;
+    outline: none;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+button:hover{
+    background-color: $aboveBtnColor;
+    outline: none;
+    
+}
+
+button:active{
+    border-radius: $btnRadius;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 1);
+}
+
+button:disabled{
+    background-color: $bgcolor;
+}
+
+.call{
+    background-color: lightgreen;
+}
+
+.hangup{
+    background-color:  lightcoral;
+}
+
+.uuid{
+    width: $inputWidth;
+    height: $inputHeigth;
+    font-size: $fontsize;
+    // border: none;
+}
+
+.svg{
+    height: $iconsize;
+    width: $iconsize;
+}
+
+.helpInfo{
+    background-color: $altBgColor;
+    padding: $padding;
+    border-radius: $btnRadius;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+.helper{
+    font-size: $fontsize*0.8;
+    vertical-align: middle;
+}
+
+.btns{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.roomBtns{
+    background-color: $altBgColor;
+    min-height: $btnHeight+10px;
+    width: $btnWidth+$inputWidth*2+160px;
+    padding: $padding;
+    border-radius: $btnRadius;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: row;
+}
+
+.serverMessages{
+    background-color: $altBgColor;
+    border-radius: $btnRadius;
+    padding: $btnRadius;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+.chatBody{
+    min-height: $chatHeight;
+    max-height: $chatHeight+200px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chatWindow{
+    height: ($chatHeight - 100px);
+    background-color: $bgcolor;
+    border-radius: $btnRadius;
+    padding: smallPadding;
+    overflow: auto;
+}
+
+
+
+.chatFooter{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.chatInput{
+    background-color: $bgcolor;
+    border-radius: $btnRadius;
+    height: $btnHeight*2;
+    width: 100%;
+    overflow: auto;
+    outline: none;
+}
+
+.chatInput:hover{
+    outline: none;
+}
+
+.sendBtn{
+    height: $btnHeight*2+2*$btnRadius;
+}
+.emptySpace{
+    width: 10px;
+}
+
+.circle{
+    width: $btnRadius*2;
+    height: $btnRadius*2;
+    border-radius: $btnRadius;
+    border-style: solid;
+    border-width: 1px;
+    text-align: center;
+}
+
+.redColor{
+    background-color: lightcoral;
+}
+.whiteColor{
+    background-color: lightcyan;
+}

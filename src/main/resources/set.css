@@ -1,0 +1,175 @@
+body {
+  background-color: lightblue;
+  color: darkblue;
+  font-size: 24px;
+}
+
+button {
+  border-radius: 15px;
+  width: 120px;
+  height: 30px;
+  font-size: 19.2px;
+  outline: none;
+  -webkit-box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
+          box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+button:hover {
+  background-color: lightgreen;
+  outline: none;
+}
+
+button:active {
+  border-radius: 15px;
+  -webkit-box-shadow: 0px 8px 15px black;
+          box-shadow: 0px 8px 15px black;
+}
+
+button:disabled {
+  background-color: lightblue;
+}
+
+.call {
+  background-color: lightgreen;
+}
+
+.hangup {
+  background-color: lightcoral;
+}
+
+.uuid {
+  width: 250px;
+  height: 30px;
+  font-size: 24px;
+}
+
+.svg {
+  height: 20px;
+  width: 20px;
+}
+
+.helpInfo {
+  background-color: lightyellow;
+  padding: 15px;
+  border-radius: 15px;
+  -webkit-box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
+          box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+.helper {
+  font-size: 19.2px;
+  vertical-align: middle;
+}
+
+.btns {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+  -webkit-box-align: baseline;
+      -ms-flex-align: baseline;
+          align-items: baseline;
+}
+
+.roomBtns {
+  background-color: lightyellow;
+  min-height: 40px;
+  width: 780px;
+  padding: 15px;
+  border-radius: 15px;
+  -webkit-box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
+          box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+}
+
+.serverMessages {
+  background-color: lightyellow;
+  border-radius: 15px;
+  padding: 15px;
+  -webkit-box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
+          box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.6);
+}
+
+.chatBody {
+  min-height: 400px;
+  max-height: 600px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+}
+
+.chatWindow {
+  height: 300px;
+  background-color: lightblue;
+  border-radius: 15px;
+  padding: smallPadding;
+  overflow: auto;
+}
+
+.chatFooter {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
+}
+
+.chatInput {
+  background-color: lightblue;
+  border-radius: 15px;
+  height: 60px;
+  width: 100%;
+  overflow: auto;
+  outline: none;
+}
+
+.chatInput:hover {
+  outline: none;
+}
+
+.sendBtn {
+  height: 90px;
+}
+
+.emptySpace {
+  width: 10px;
+}
+
+.circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 15px;
+  border-style: solid;
+  border-width: 1px;
+  text-align: center;
+}
+
+.redColor {
+  background-color: lightcoral;
+}
+
+.whiteColor {
+  background-color: lightcyan;
+}
+/*# sourceMappingURL=set.css.map */
