@@ -1,224 +1,263 @@
-// variables -----------------------------------------
-var conn;
-var peerConnection;
-var inStream;
-var countIceCandidate = 0;
-var countCalls = 0;
-var msgPoints = "...";
-var msg="You have a call";
+var ws;
+var pc;
+var uuid = generateID();
+var remoteUuid;
+var configuration = {
+    'iceServers': [{
+        'urls': ['stun:stun.l.google.com:19302' ]
+    }]
+};
 
-function createMsg(msg) {
-    var line = document.getElementById("line");
-    line.innerHTML = "<h3 id=\"msg\">"+msg+"</h3>";
+function generateID(){
+    return 'xxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
 }
 
-function changeMsg(msg){
-    document.getElementById("msg").remove();
-    // setTimeout(function (){console.log('delete msg')},3000);
-    createMsg(msg);
+function checkRemoteUuid(){
+    if(remoteUuid){
+        return true;
+    }
+    let uuidElements = document.getElementsByClassName('uuid remote');
+    let uuidElement = uuidElements[0];
+    uuidElement.value="INSERT UUID";
+    return false;
 }
 
-//connecting to our signaling server
+function setRemoteUuid(){
+    let uuidElements = document.getElementsByClassName('uuid remote');
+    let uuidElement = uuidElements[0];
+    remoteUuid = uuidElement.value;
+    console.log('set remote uuid:', remoteUuid);
+    return remoteUuid;
+}
 
-function createConnection(){
-    conn = new WebSocket('ws://app-webrtc2020.herokuapp.com/socket');
-    // conn = new WebSocket('ws://localhost:8080/socket');
+window.onload = function(){
+    console.log("window loaded");
+    connect();
+}
 
-    conn.onopen = function() {
-        console.log("Connected to the signaling server");
-        initialize();
-        changeMsg("connected to the signaling server");
+function connect(){
+    console.log("connecting started");
+    let uuidElements = document.getElementsByClassName('uuid');
+    let uuidElement = uuidElements[0];
+    uuidElement.value=uuid;
+    
+    ws = new WebSocket('ws://app-webrtc2020.herokuapp.com/socket');
+    // ws = new WebSocket('ws://localhost:8080/socket');
+    ws.onopen = function(){
+        console.log('ws opened');
+        pcCreate();
     };
-
-    conn.onclose = function () {
-        console.log("Connection closed.");
-    };
-
-    conn.onmessage = function(msg) {
-        console.log("Got message", msg.data);
-        let content = JSON.parse(msg.data);
-        let data = content.data;
-        switch (content.event) {
-            // when somebody wants to call us
+    ws.onmessage = function(msg){
+        const content = JSON.parse(msg.data);
+        if(content.uuid === uuid){
+            console.log('skip own messsage');
+            return;
+        }
+        console.log('ws message: ',msg);
+        const event = content.event;
+        const data = content.data;
+        switch (event){
             case "offer":
                 handleOffer(data);
                 break;
             case "answer":
                 handleAnswer(data);
                 break;
-            // when a remote peer sends an ice candidate to us
+            case "call":
+                handleCall(content);
+                break;
             case "candidate":
                 handleCandidate(data);
                 break;
-            case "call":
-                youHaveCall();
-                break;
-            case "hangUp":
-                hangUp();
-                break;
-            default:
-                break;
         }
-    };
-}
-//-----------------general functions---------------------------------------------
-
-function send(message) {
-    conn.send(JSON.stringify(message));
+    }
+    ws.onclose = function(){
+        connect();
+    }
 }
 
-// peerConnection initialization ------------------------------------------------
-function initialize() {
-    let configuration = {
-        'iceServers': [{
-            'urls': ['stun:stun.l.google.com:19302' ]
-        }]
-    };
+function stop(){
+    createMsg("Call has been canceled");
+    if(localStream){
+        let localTracks = localStream.getTracks();
+        localTracks.forEach(function(track) {
+            track.stop();
+        });
+        document.getElementById('circleOne').className = "circle whiteColor";
+    }
+    if(remoteStream){
+        let remoteTracks = remoteStream.getTracks();
+        remoteTracks.forEach(function(track) {
+            track.stop();
+        });
+        document.getElementById('circleTwo').className = "circle whiteColor";
+    }
+      localStream = null;
+      remoteStream = null;
+    document.getElementById('remote').srcObject = null;
+    document.getElementById('local').srcObject = null;
+    if(pc) pc.close();
+    pc = null;
+    pcCreate();
+    callLine = 'none';
+    console.log('pc closed');
+}
 
-    peerConnection = new RTCPeerConnection(configuration,
+var callLine = 'none'; // phone line has 3 states: in, out, none, busy
+function makeCall(){
+    if(callLine === 'none'){ //outcoming call
+        createLocalMedia();
+        send({
+            event: "call",
+            uuid: uuid,
+            remoteUuid: setRemoteUuid()
+        });
+        callLine = 'out';
+        console.log('outcoming call');
+        return;
+    }
+    if(callLine === 'in'){ //incoming call
+        call();
+        callLine = 'busy';
+        console.log('incoming call');
+        return;
+    }
+}
+
+function call(){
+    createLocalMedia();
+    setRemoteUuid();
+    if(!checkRemoteUuid()){
+        return;
+    }
+    createOffer();
+}
+
+var remoteStream; //remote media stream
+var localStream; //local media stream
+function createLocalMedia(){
+    navigator.mediaDevices.getUserMedia({
+        video: false,
+        audio: true
+    }).then(function(stream){
+        document.getElementById('local').srcObject = stream;
+        pc.addTrack(stream.getTracks()[0], stream);
+        localStream = stream;
+        document.getElementById('circleOne').className = "circle redColor";
+    });
+}
+
+function pcCreate(){
+    pc = new RTCPeerConnection(configuration,
         {
-            optional : [ {
-                RtpDataChannels : true
-            } ]
-        }
+        optional : [ {
+            RtpDataChannels : true
+        } ]
+    }
     );
 
-    // Setup ice handling
-    peerConnection.onicecandidate = function(event) {
+    pc.onopen = function(){
+        console.log('pc opened');
+    }
+
+    pc.onmessage = function(msg){
+        console.log('pc message: ', msg);
+        
+    }
+
+    pc.onclose = function(){
+        console.lot('pc closed');
+    }
+
+    pc.onicecandidate = function(event){
+        console.log('pc.onicecandidate', event);
         if (event.candidate) {
             send({
                 event : "candidate",
                 data : event.candidate,
+                uuid : uuid,
+                remoteUuid: remoteUuid
             });
-            countIceCandidate = countIceCandidate + 1;
-            console.log("peerConnection.onicecandidate");
         }
-    };
-    peerConnection.ontrack = function (event) {
-        inStream = new MediaStream();
-        inStream.addTrack(event.track);
-        document.getElementById("remoteVideo").srcObject = inStream;
-        console.log('peerConnection.ontrack');
-    };
+    }
+
+    pc.ontrack = function(event){
+        console.log('pc.ontrack', event);
+        document.getElementById('remote').srcObject = event.streams[0];
+        remoteStream = event.streams[0];
+        document.getElementById('circleTwo').className = "circle redColor";
+    }
+
+    console.log('pcCreate done');
 }
 
-
-function createOffer() {
-    peerConnection.createOffer(function(offer) {
+function createOffer(){
+    if(pc.iceConnectionState === "connected"){
+        return;
+    }
+    pc.createOffer(function(offer) {
         send({
             event: "offer",
             data: offer,
+            uuid: uuid,
+            remoteUuid: remoteUuid
         });
-        peerConnection.setLocalDescription(offer);
+        pc.setLocalDescription(offer);
+        console.log("pc.createOffer setLocalDescription: ", offer);
     }, function(err) {
-        console.log("createOffer() :"+err);
+        console.log("pc cannot create offer");
     });
-    console.log("createOffer()");
 }
 
-// handlers------------
-function handleOffer(offer) {
-    peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+function send(message) {
+        ws.send(JSON.stringify(message));
+        console.log('send message: ', message);
+}
 
+function handleOffer(offer){
+    console.log('got offer: ',offer);
+    // pc.setRemoteDescription(new RTCSessionDescription(offer));
+    pc.setRemoteDescription(offer);
     // create and send an answer to an offer
-    peerConnection.createAnswer(function(answer) {
-        peerConnection.setLocalDescription(answer);
+    pc.createAnswer(function(answer) {
+        pc.setLocalDescription(answer);
         send({
             event : "answer",
             data : answer,
+            uuid: uuid,
+            remoteUuid: remoteUuid
         });
+        console.log('pc.createAnswer: ', answer);
     }, function() {
-        console.log("handleOffer");
+        console.log('pc.createAnswer error');
     });
-
-    peerConnection.onclose = function () {
-        console.log('peerConnection closed');
-    }
 }
 
-
-function handleCandidate(candidate) {
-    peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-    // countIceCandidate = countIceCandidate + 1;
-    console.log("handleCandidate");
-}
-
-
-function handleAnswer(answer) {
-    peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-    console.log("handleAnswer(answer), countCalls :"+countCalls);
-    if(countCalls > 0 && countIceCandidate == 0){
-        createOffer();
-    }
-}
-
-function youHaveCall(){
-    countCalls = countCalls+1;
-    changeMsg(msg);
-    console.log('youHaveCall, countCalls :'+countCalls);
-}
-
-// commands ----------------------------------------------------------------
-function call() {
+function handleAnswer(answer){
+    pc.setRemoteDescription(answer);
+    console.log("handleAnswer, setRemoteDescription: ", answer);
     createOffer();
-    send({
-        event:"call",
-        data:"call"
-    });
-    navigator.mediaDevices.getUserMedia({
-        video: {
-            width: 480,
-            height: 360
-        }
-    })
-        .then(function (stream) {
-            document.getElementById("localVideo").srcObject = stream;
-            peerConnection.addTrack(stream.getTracks()[0], stream);
-        });
-
-    console.log("call(): media track was added and createOffer was made");
 }
 
-function hangUp() {
-    changeMsg(msgPoints);
-    document.getElementById("remoteVideo").srcObject = null;
-    peerConnection.onicecandidate = null;
-    peerConnection.ontrack = null;
-    var stream = document.getElementById("localVideo").srcObject;
-    stream.stop = function (){
-        this.getTracks().forEach(function(track) { track.stop(); });
-    }
-    stream.stop();
-    countIceCandidate = 0;
-    countCalls = 0;
-    // conn.close();
-    // createConnection();
-    peerConnection.close();
-    initialize();
-    var videos = document.getElementById("videos");
-    document.getElementById("localVideo").remove();
-    document.getElementById("remoteVideo").remove();
-    videos.innerHTML += "<video id=\"localVideo\" autoplay></video><video id=\"remoteVideo\" autoplay></video>";
-    console.log("hangUp()");
+function handleCall(content){
+    let uuidElements = document.getElementsByClassName('uuid remote');
+    let uuidElement = uuidElements[0];
+    uuidElement.value = content.uuid;
+    console.log('handleCall: ', content);
+    createMsg("YOU HAVE A CALL");
+    callLine ='in';
 }
 
-function stopCall() {
-    hangUp();
-    send({
-        event:"hangUp",
-        data:"hangUp"
-    });
+function handleCandidate(candidate){
+    pc.addIceCandidate(new RTCIceCandidate(candidate));
+    console.log('handleCandidate: ', candidate);
 }
 
-function test() {
-    peerConnection.createOffer(function(answer) {
-        send({
-            event: "answer",
-            data: answer,
-        });
-        peerConnection.setLocalDescription(answer);
-    }, function(err) {
-        console.log("error createOffer() :"+err);
-    });
-    console.log("createOffer() in test");
+function createMsg(msg) {
+    var line = document.getElementById("line");
+    line.innerHTML = "<h3 id=\"msg\">"+msg+"</h3>";
+    console.log("message: ", msg);
 }
