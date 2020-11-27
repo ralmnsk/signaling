@@ -52,7 +52,7 @@ function connect(){
     };
     ws.onmessage = function(msg){
         const content = JSON.parse(msg.data);
-        if(content.uuid === uuid){
+        if(content.uuid === uuid && content.event !== "chat"){
             console.log('skip own messsage');
             return;
         }
@@ -71,6 +71,9 @@ function connect(){
                 break;
             case "candidate":
                 handleCandidate(data);
+                break;
+            case "chat":
+                handleChat(content);
                 break;
         }
     }
@@ -260,4 +263,41 @@ function createMsg(msg) {
     var line = document.getElementById("line");
     line.innerHTML = "<h3 id=\"msg\">"+msg+"</h3>";
     console.log("message: ", msg);
+}
+
+//-----chat-----------------------------------------------------------------
+
+function sendChatMessage(){
+    let message = document.getElementById("chatMessage").innerText;
+    console.log('sendChatMessage: ', message);
+    if(!message||message === ''){
+        console.log('message is empty');
+        return;
+    }
+    send({
+        event: "chat",
+        data: message,
+        uuid: uuid
+    });
+    let d = new Date();
+    let element = document.getElementById('chat');
+    element.innerHTML = element.innerHTML+'<br>'+'you: '+message+d;
+    scrollChatToBottom();
+    document.getElementById("chatMessage").innerHTML = '';
+}
+
+function handleChat(content){
+    console.log('handleChat: ', content);
+    let message = content.data;
+    let user = content.uuid;
+    let d = new Date();
+    let chatMessage = user+": "+message+" "+d;
+    let element = document.getElementById('chat');
+    element.innerHTML = element.innerHTML+'<br>'+chatMessage;
+    scrollChatToBottom();
+}
+
+function scrollChatToBottom(){
+    var objDiv = document.getElementById('chat');
+    objDiv.scrollTop = objDiv.scrollHeight;
 }
