@@ -2,50 +2,26 @@
 <head>
     <meta charset=”utf-8”>
     <script src="client.js"></script>
-    <style>
-        #regDiv{
-            display: none;
-        }
-        #logDiv{
-            display: none;
-        }
     </style>
     <link rel="stylesheet" type="text/css" href="./set.css">
 </head>
 <body>
     <div id="buttons" class="btns">
         <div class="roomBtns">
-            <label>Room UUID</label>
+            <label>your id</label>
             <input class="uuid" type="text" placeholder="UUID identifier">
-            <button id="setUUID" onclick="setNewUUID()">Set</button>
-            <button id="generateUUID" onclick="generateUUID()">Generate</button>
-        </div>
-        <div class="connectionBtns">
-            <button id="connectServerBtn" onclick="createConnection()"><img class="svg" src="./img/link.svg">connect</button>
-            <button id="disconnectServerBtn" onclick="closeConnection('close')"><img class="svg" src="./img/disconnected-chains.svg">close</button>
+            <label>remote id</label>
+            <input class="uuid remote" type="text" placeholder="remote UUID identifier">
+            <div class="emptySpace"></div>
+            <div id="circleOne" class="circle whiteColor">l</div>
+            <div class="emptySpace"></div>
+            <div id="circleTwo" class="circle whiteColor">r</div>
         </div>
         <div class="callBtns">
-            <button id="btn" class="call" onclick="call()"><img class="svg" src="./img/phone-call.svg"></button>
-<!--        <button id="test" onclick="test()">test</button>-->
-            <button id="btnStop" class="hangup" onclick="stopCall()"><img class="svg" src="./img/phone-hang-up.svg"></button>
+            <button id="btn" class="call" onclick="makeCall()"><img class="svg" src="./img/phone-call.svg"></button>
+            <button id="btnStop" class="hangup" onclick="stop()"><img class="svg" src="./img/phone-hang-up.svg"></button>
         </div>
     </div>
-        <!-- <button id="toRegBtn" onclick="regDiv()">Registration</button>
-        <button id="toLogBtn" onclick="logDiv()">Log in</button> -->
-    <!-- <div id="regDiv">    -->
-        <!--REGISTRATION-->
-        <!-- <input id="loginReg" type="text" placeholder="login"><br>
-        <input id="passwordReg" type="password" placeholder="password"><br>
-        <input id="address" type="text" placeholder="address"><br>
-        <input id="email" type="email" placeholder="email"><br>
-        <button id="regBtn" onclick="sendRegistrationData()">Register</button> -->
-    <!-- </div>
-    <div id="logDiv">   -->
-        <!--LOGIN-->
-        <!-- <input id="login" type="text" placeholder="login">
-        <input id="password" type="password" placeholder="password">
-        <button id="loginBtn">Login</button>
-    </div> -->
     <ul class="userList"></ul>
     <div class = "serverMessages">
         Message from server:
@@ -82,9 +58,9 @@
     </div>
     </br>
  
-    <div id="videos">
-        <video id="localVideo" autoplay muted></video>
-        <video id="remoteVideo" autoplay></video>
+    <div id="audios">
+        <audio id="local" autoplay muted></audio>
+        <audio id="remote" autoplay></audio>
     </div>
 </body>
 </html>
